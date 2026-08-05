@@ -152,6 +152,49 @@ occurs in CPRD Aurum is an empirical question, and it is Aim 2.
 
 ---
 
+## Known weaknesses of this proposal
+
+An external audit of the interview deck found faults worth recording here, because
+they are the questions any reader should ask.
+
+**The exposure needed a definition.** Coding propensity is a practice random
+intercept from a patient-level coding model standardised on age, sex, ethnicity,
+deprivation, comorbidity count and prior consultation rate. It is not a raw coding
+rate: a crude proportion mixes recording behaviour with true symptom prevalence,
+and prevalence is unobservable, so using it would place the outcome inside the
+exposure.
+
+**The direction of the Aim 2 result is partly forced.** Low-coding practices
+predict lower risk while observed incidence is unchanged. What is not forced is the
+magnitude, whether it exceeds what a 3% threshold tolerates, and whether it differs
+between groups within the same coding stratum. That within-stratum contrast is the
+primary comparison.
+
+**The simulation's headline quantity is counterfactual.** Observed over predicted
+risk of 1.91 falling to 1.61 is conditional on truly having the symptom, which
+CPRD never reveals. Aim 2 estimates calibration within observable coding strata;
+the true-carrier result shows only that the observable contrast is not a nuisance
+adjustment removes.
+
+**The equity claim is an argument, not a simulation result.** The sweep has one
+population and one coding sensitivity, so its 28.8% attenuation is non-differential
+misclassification. Non-differential within a group becomes differential between
+groups once the sensitivity varies by group, which is what d'Elia measured, but a
+two-group branch has not been run.
+
+**The negative control is imperfect.** Screening participation varies by ethnicity,
+deprivation and practice organisation, the same axes under study, so a failed
+control is uninformative, not refuting. The exposure-side control is weaker
+still, because practices with strong coding culture code everything more.
+
+**Yu et al. (2026) argues against the coded-only constraint.** Their conclusion is
+that registry data should be preferred for development and validation. Registry
+linkage is worth requesting for the outcome even while predictors stay coded-only;
+if refused, the 4.4-point sensitivity gap at the 3% threshold is a bias to bound
+and report.
+
+---
+
 ## Which model is evaluated, and why the question is open
 
 The model is Hippisley-Cox and Coupland (2025), Nature Communications 16(1):3660,
