@@ -65,7 +65,12 @@ def read_rows(name):
 
 
 def forest():
-    """d'Elia Table 3: odds that a symptom was coded, by patient group."""
+    """d'Elia Table 3: odds that a symptom was coded, by patient group.
+
+    The paper reports significant differences for twelve symptoms. This shows 15
+    rows because three symptoms are significant in more than one patient group,
+    so the unit here is the symptom-by-group association, not the symptom.
+    """
     raw = read_rows("delia2025_table3.csv")
     grouped = {g: [r for r in raw if r["group"] == g] for g in GROUP_ORDER}
     n_total = len(raw)
@@ -113,8 +118,8 @@ def forest():
     ax.annotate("the one that runs\nthe other way", xy=(0.92, hip), xytext=(1.45, hip),
                 fontsize=11, color=GREY, va="center", ha="left", linespacing=1.35,
                 arrowprops=dict(arrowstyle="-", color=GREY, lw=0.9, shrinkA=3, shrinkB=2))
-    ax.text(3.30, ticks[1], f"{n_above} of {n_total} associations\nlie above 1",
-            fontsize=12, color=NAVY, fontweight="bold", ha="left", va="center",
+    ax.text(2.05, ticks[1], f"{n_above} of {n_total} symptom-by-group\nassociations lie above 1",
+            fontsize=11.5, color=NAVY, fontweight="bold", ha="left", va="center",
             linespacing=1.40)
 
     fig.subplots_adjust(left=0.295, right=0.985, top=0.99, bottom=0.115)

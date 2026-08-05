@@ -67,7 +67,7 @@ def check_table3():
 
 
 def check_abstract():
-    print("\nB. The same three associations as printed in the paper's ABSTRACT")
+    print("\nB. The same associations as printed in the paper's ABSTRACT")
     for symptom, group, point, lo, hi in ABSTRACT_AS_PRINTED:
         ok, centre = log_centred(point, lo, hi)
         if hi < lo:
@@ -140,8 +140,8 @@ def check_symptom_overlap():
     bands = list(csv.DictReader(open(DATA / "barclay2024_measured_bands.csv", newline="")))
     fatigue_max = max(float(r["band_thickness_pc_at_oldest_age"])
                       for r in bands if r["panel"] == "Fatigue")
-    print(f"   Fatigue is in both lists, and its largest single-site risk is {fatigue_max:.2f}% "
-          f"\u2014 {'below' if fatigue_max < NICE_THRESHOLD else 'above'} the {NICE_THRESHOLD}% threshold.")
+    print(f"   Fatigue is in both lists, and its largest single-site risk is {fatigue_max:.2f}%, "
+          f"{'below' if fatigue_max < NICE_THRESHOLD else 'above'} the {NICE_THRESHOLD}% threshold.")
     print("   So the symptoms whose coding differs by group are also the ones that sit")
     print("   furthest from the threshold at which referral is decided.")
 
