@@ -152,6 +152,38 @@ occurs in CPRD Aurum is an empirical question, and it is Aim 2.
 
 ---
 
+## Which model is evaluated, and why the question is open
+
+The model is Hippisley-Cox and Coupland (2025), Nature Communications 16(1):3660,
+developed on 7.46 million adults in England and externally validated in 2.64
+million in England plus 2.74 million in Scotland, Wales and Northern Ireland. It
+contains both general and cancer-specific presenting symptoms, which is what
+makes it sensitive to how symptoms are recorded. The 10-year QCancer contains no
+presenting symptoms, so symptom recording cannot bias it, and it is not the
+target here.
+
+Three facts from that paper set up the project:
+
+| | |
+|---|---|
+| Calibration is reported | overall and for each cancer type in men and women (Table 3) |
+| Discrimination is reported by subgroup | ethnic group, age and geographical area (Supplementary Figs. 8 to 13) |
+| Calibration by ethnic group or deprivation | not reported |
+
+The authors' own limitations section states that recording of symptoms in primary
+care records may be less complete or accurate than diagnostic codes, because
+patients may not consult for mild symptoms, may not report all symptoms when they
+do, or GPs may not record them. That is the gap this project measures.
+
+Starting cancers: colorectal and lung. Both are in the model, both have
+non-specific presenting symptoms in Barclay's list of 15, and both have published
+calibration intercepts for men and women to compare against.
+
+Negative control outcome: screen-detected breast cancer, where ascertainment runs
+through invitation and mammography instead of a symptom code.
+
+---
+
 ## How Aim 2 is identified, and what would break it
 
 Coding propensity is defined at practice level, which fixes the shape of the
