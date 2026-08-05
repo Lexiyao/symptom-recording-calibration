@@ -152,6 +152,44 @@ occurs in CPRD Aurum is an empirical question, and it is Aim 2.
 
 ---
 
+## How Aim 2 is identified, and what would break it
+
+Coding propensity is defined at practice level, which fixes the shape of the
+design and rules out one obvious model. `verification/check_identification.py`
+shows both points arithmetically.
+
+**Practice fixed effects cannot be used.** A practice-level exposure is a linear
+combination of the practice indicators, so the design matrix is rank-deficient
+by one and the exposure coefficient is not identified. The model is therefore a
+hierarchical one with practice random effects, patients standardised on age,
+sex, ethnicity, deprivation, comorbidity count and prior consultation rate.
+
+**Two negative controls.** Coding propensity should not predict calibration for
+an outcome that is not ascertained through symptom coding, and propensity to
+code a symptom clinically unrelated to the cancer under study should not predict
+calibration for that cancer. Either association would mean the comparison is
+picking up practice quality, and it would be reported as such.
+
+**Referral behaviour enters as a covariate.** Urgent referral rate and endoscopy
+or imaging use per 1,000 registered patients, because a practice that refers
+more may also code more.
+
+**The bias bound is reported, not assumed away.** At a between-practice SD in
+coding propensity of 0.15, a confounder correlated 0.5 with it and with SD 1.0
+would need to shift the calibration slope by 0.09 per SD to reproduce a 0.30
+effect. The table of required strengths is printed by the script.
+
+**If the negative controls fail**, the question becomes a bounding exercise:
+quantitative bias analysis across plausible coding sensitivities, reporting the
+range of calibration error consistent with the data instead of a point estimate.
+
+Method sources: Lipsitch, Tchetgen Tchetgen and Cohen (2010), Epidemiology
+21(3):383-388, on negative controls; Zhang, Clark and Hubbard (2024),
+Epidemiology 35(3):349-358, on quantitative bias analysis for informative
+presence in electronic health records.
+
+---
+
 ## How this sits against existing work in the department
 
 The Nuffield Department of Primary Care Health Sciences has already asked a
@@ -179,6 +217,7 @@ data/barclay2024_measured_bands.csv   per-site bands, written by barclay_panels.
 data/sweep_results.csv                simulation sweep output, 200 replicates per point
 verification/check_sources.py         consistency, threshold, bridge and power checks
 verification/check_simulation.py      simulation against closed-form theory
+verification/check_identification.py  Aim 2 identification and confounding bound
 figures/                              generated output
 ```
 
