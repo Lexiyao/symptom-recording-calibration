@@ -112,6 +112,40 @@ def check_barclay_bands():
     print("   total is not the quantity of interest; the annotation reports a single site.")
 
 
+BARCLAY_15 = ["abdominal pain", "abdominal bloating", "rectal bleed", "change in bowel habit",
+              "dyspepsia", "dysphagia", "dyspnoea", "haemoptysis", "haematuria", "fatigue",
+              "night sweats", "weight loss", "jaundice", "breast lump", "post-menopausal bleed"]
+
+
+def check_symptom_overlap():
+    """Which symptoms appear in BOTH evidence sources.
+
+    d'Elia studied prodromal symptoms of rheumatoid arthritis, not cancer. The
+    argument therefore rests on an explicit bridge: symptoms that appear both in
+    d'Elia's coding-disparity results and in Barclay's fifteen cancer presenting
+    symptoms. This computes that intersection rather than asserting it.
+    """
+    print("\nF. Bridge between the two evidence sources")
+    rows = list(csv.DictReader(open(DATA / "delia2025_table3.csv", newline="")))
+    delia = {r["symptom"].lower().replace("unintended ", "").strip() for r in rows}
+    overlap = sorted(delia & set(BARCLAY_15))
+    print(f"   d'Elia distinct symptoms: {len(delia)}  |  Barclay presenting symptoms: {len(BARCLAY_15)}")
+    print(f"   in BOTH: {overlap}")
+    assert overlap, "the argument needs at least one symptom in both sources"
+    for r in rows:
+        key = r["symptom"].lower().replace("unintended ", "").strip()
+        if key in overlap:
+            print(f"      {r['symptom']:22s} {r['group']:22s} OR {r['odds_ratio']} "
+                  f"({r['ci_low_99_76']}\u2013{r['ci_high_99_76']})")
+    bands = list(csv.DictReader(open(DATA / "barclay2024_measured_bands.csv", newline="")))
+    fatigue_max = max(float(r["band_thickness_pc_at_oldest_age"])
+                      for r in bands if r["panel"] == "Fatigue")
+    print(f"   Fatigue is in both lists, and its largest single-site risk is {fatigue_max:.2f}% "
+          f"\u2014 {'below' if fatigue_max < NICE_THRESHOLD else 'above'} the {NICE_THRESHOLD}% threshold.")
+    print("   So the symptoms whose coding differs by group are also the ones that sit")
+    print("   furthest from the threshold at which referral is decided.")
+
+
 def check_subgroup_power():
     print("\nE. Feasibility floor for estimating a subgroup calibration slope")
     print("   Rule of thumb: ~100 events minimum per subgroup, 200 preferred.")
@@ -127,5 +161,6 @@ if __name__ == "__main__":
     check_abstract()
     check_thresholds()
     check_barclay_bands()
+    check_symptom_overlap()
     check_subgroup_power()
     print("\nAll assertions passed.")

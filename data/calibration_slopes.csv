@@ -1,0 +1,5 @@
+group,calibration_slope,ece,is_pooled
+Least deprived (I–II),1.849,0.355,no
+Middle (III–IV),1.501,0.356,no
+Most deprived (V–VI),0.502,0.293,no
+Pooled,1.595,0.351,yes
