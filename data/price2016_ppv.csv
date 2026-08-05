@@ -1,4 +1,5 @@
-symptom,cancer,ppv_coded_only,ci_low_coded,ci_high_coded,ppv_codes_plus_text,ci_low_both,ci_high_both,crosses_3pc
-Haematuria,Bladder,4.0,3.5,4.6,2.9,2.6,3.2,yes
-Jaundice,Pancreatic,12.8,7.3,21.6,6.3,4.5,8.7,no
-Abdominal pain,Pancreatic,0.23,0.21,0.25,0.21,0.2,0.22,no
+group,symptom,cancer,ppv_coded_only,ci_low_coded,ci_high_coded,ppv_codes_plus_text,ci_low_both,ci_high_both,crosses_3pc
+Alarm symptoms,Jaundice,pancreatic,12.8,7.3,21.6,6.3,4.5,8.7,no
+Alarm symptoms,Haematuria,bladder,4.0,3.5,4.6,2.9,2.6,3.2,yes
+'Low-risk but not no-risk' symptom,Abdominal pain,pancreatic,0.23,0.21,0.25,0.21,0.2,0.22,no
+'Low-risk but not no-risk' symptom,Abdominal pain,bladder,0.14,0.13,0.16,0.14,0.13,0.15,no

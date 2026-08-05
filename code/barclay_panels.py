@@ -90,8 +90,8 @@ def calibrate_axis(page, top, x0, x1):
     """Return (row_of_3pc, baseline_row) for one panel, from its own gridlines.
 
     Raises if the linear fit of gridline row against axis value does not hold
-    to within 3 pixels — a silently miscalibrated reference line would be a
-    data-fidelity error, not a cosmetic one.
+    to within 3 pixels. A silently miscalibrated reference line is a data-fidelity
+    error, not a cosmetic one.
     """
     grey = np.array(page.convert("L"))
     # the 0.00 axis is a near-black line spanning the full plot width
@@ -137,8 +137,8 @@ def find_plot_right_edge(page, top, baseline, x_from, x_to):
     """Rightmost x carrying stacked-area fill.
 
     The black title bar is WIDER than the plotting area, so its right edge must
-    not be used as a sampling column — doing so samples empty margin and
-    silently returns near-zero band thicknesses.
+    not be used as a sampling column. Doing so samples empty margin and silently
+    returns near-zero band thicknesses.
     """
     hsv = np.array(page.convert("HSV"))
     saturated = (hsv[:, :, 1].astype(int) > 60) & (hsv[:, :, 2].astype(int) > 90)
@@ -188,7 +188,7 @@ def compose(page, pdf_path, scale=0.70):
         print(f"{panel}: largest single site = {top_site} at {top_val * 100:.1f}% "
               f"({'exceeds' if top_val > 0.03 else 'below'} the 3% threshold)")
     # the whole point of the annotation: haematuria has a single site above 3%,
-    # fatigue does not. Assert it rather than trusting the eye.
+    # fatigue does not. Assert it instead of trusting the eye.
     assert max(measured["Haematuria"].values()) > 0.03
     assert max(measured["Fatigue"].values()) < 0.03
 

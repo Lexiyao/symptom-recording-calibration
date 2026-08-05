@@ -5,12 +5,12 @@ Run:  python verification/check_sources.py
 
 Two kinds of check:
 
-  A. Internal consistency of each published confidence interval — a 99.76% CI on
-     an odds ratio should be roughly symmetric on the log scale, so its
-     geometric centre sqrt(lower*upper) should sit close to the point estimate.
+  A. Internal consistency of each published confidence interval. A 99.76% CI on an
+     odds ratio should be roughly symmetric on the log scale, so its geometric
+     centre sqrt(lower*upper) should sit close to the point estimate.
      An interval that fails this is either a typo or a different quantity.
 
-  B. Threshold arithmetic — which predictive values cross the 3% line that NICE
+  B. Threshold arithmetic: which predictive values cross the 3% line that NICE
      used when building the urgent referral criteria.
 
 Check A found three discrepancies between the ABSTRACT of d'Elia et al. (2025)
@@ -123,7 +123,7 @@ def check_symptom_overlap():
     d'Elia studied prodromal symptoms of rheumatoid arthritis, not cancer. The
     argument therefore rests on an explicit bridge: symptoms that appear both in
     d'Elia's coding-disparity results and in Barclay's fifteen cancer presenting
-    symptoms. This computes that intersection rather than asserting it.
+    symptoms. This computes that intersection instead of asserting it.
     """
     print("\nF. Bridge between the two evidence sources")
     rows = list(csv.DictReader(open(DATA / "delia2025_table3.csv", newline="")))

@@ -5,11 +5,11 @@ prediction models in UK primary care"
 
 Reproduces three figures from the CSVs in ../data:
 
-  fig_forest.png     — d'Elia et al. (2025) Table 3: odds of a symptom being
+  fig_forest.png: d'Elia et al. (2025) Table 3: odds of a symptom being
                        coded, by ethnicity and deprivation (CPRD Aurum)
-  fig_threshold.png  — Price et al. (2016): positive predictive values before
+  fig_threshold.png: Price et al. (2016): positive predictive values before
                        and after recovering free-text records
-  fig_pooling.png    — illustration of subgroup calibration slopes pooling to
+  fig_pooling.png: illustration of subgroup calibration slopes pooling to
                        a value that describes neither subgroup
 
 Usage:  python code/figures.py            (writes into figures/)
@@ -65,7 +65,7 @@ def read_rows(name):
 
 
 def forest():
-    """d'Elia Table 3 — odds that a symptom was coded, by patient group."""
+    """d'Elia Table 3: odds that a symptom was coded, by patient group."""
     raw = read_rows("delia2025_table3.csv")
     grouped = {g: [r for r in raw if r["group"] == g] for g in GROUP_ORDER}
     n_total = len(raw)
@@ -125,68 +125,82 @@ def forest():
 
 
 def threshold():
-    """Price 2016 — PPV with coded records only vs codes plus recovered text.
+    """Price 2016: PPV with coded records only, then with recovered free text.
 
-    Drawn as small multiples with a per-panel scale, deliberately. On a shared
-    0-15% axis the jaundice movement (12.8 to 6.3) occupies 43% of the axis
-    while haematuria (4.0 to 2.9) occupies 7% - so the visually dominant series
-    is the secondary finding and the one that actually crosses the referral
-    threshold is nearly invisible. Per-panel scales give each movement the same
-    visual weight; the axis labels carry the magnitude.
+    All four symptom/cancer pairs the paper reports are shown, grouped as the
+    paper groups them, into alarm features and one "low-risk but not no-risk"
+    feature. Showing three of four would look like selection.
+
+    The x axis is logarithmic because the four values span 0.14% to 12.8%. On a
+    linear 0-15% axis the jaundice movement fills 43% of the width while
+    haematuria, the only pair that crosses the referral threshold, fills 7%,
+    so the visual emphasis lands on the secondary finding.
     """
     raw = read_rows("price2016_ppv.csv")
-    # per-panel x-range and ticks, chosen so each movement fills its panel
-    VIEW = {"Haematuria": ((2.42, 4.58), [3, 4], "in"),
-            "Jaundice": ((4.15, 15.1), [6, 9, 12], "below"),
-            "Abdominal pain": ((0.1775, 0.2625), [0.20, 0.24], "above")}
-    NOTE = {"in": "3% referral threshold (dashed)",
-            "below": "3% threshold lies below this range",
-            "above": "3% threshold lies above this range"}
-    VERDICT = {"in": "crosses the threshold", "below": "halves, but stays above",
-               "above": "does not move"}
+    groups = []
+    for r in raw:
+        if not groups or groups[-1][0] != r["group"]:
+            groups.append((r["group"], []))
+        groups[-1][1].append(r)
 
-    fig, axes = plt.subplots(1, 3, figsize=(8.6, 2.72))
-    Y, L0, L1 = 0.50, 0.30, 0.70
-    for ax, r in zip(axes, raw):
-        a = float(r["ppv_coded_only"])
-        b = float(r["ppv_codes_plus_text"])
-        xr, ticks, thr = VIEW[r["symptom"]]
-        colour = NAVY if r["crosses_3pc"] == "yes" else GREY
-        ax.set_xlim(*xr)
-        ax.set_ylim(0, 1)
-        if thr == "in":
-            # a short vertical segment, not axvline: a full-height line runs
-            # through the value labels and the verdict text
-            ax.vlines(3.0, L0, L1, color=NAVY, ls=(0, (4, 3)), lw=1.7, zorder=1)
-        ax.annotate("", xy=(b, Y), xytext=(a, Y),
-                    arrowprops=dict(arrowstyle="-|>", color=colour, lw=2.6,
-                                    shrinkA=5, shrinkB=1, mutation_scale=17))
-        ax.plot([a], [Y], "o", ms=10, color=colour, mfc="white", mew=2.4, zorder=3)
-        ax.plot([b], [Y], "o", ms=10, color=colour, zorder=3)
-        span = xr[1] - xr[0]
-        ax.text(b - span * 0.055, Y, f"{b}%", color=colour, ha="right", va="center",
-                fontsize=12, fontweight="bold")
-        ax.text(a + span * 0.055, Y, f"{a}%", color=colour, ha="left", va="center", fontsize=12)
-        ax.set_title(f"{r['symptom']}\n{r['cancer'].lower()} cancer", fontsize=12.5,
-                     color="#2D2D2D", pad=8, linespacing=1.35)
-        ax.set_yticks([])
-        ax.set_xticks(ticks)
-        ax.set_xticklabels([f"{t:g}" for t in ticks], fontsize=11)
-        ax.tick_params(axis="x", length=3, colors="#6A6A6A")
-        ax.text(0.5, 0.955, NOTE[thr], transform=ax.transAxes, color=NAVY, fontsize=10.5,
-                ha="center", va="top", fontweight="bold" if thr == "in" else "normal")
-        ax.text(0.5, 0.085, VERDICT[thr], transform=ax.transAxes, color=colour, fontsize=11.5,
-                ha="center", va="center", fontweight="bold" if thr == "in" else "normal")
+    fig, ax = plt.subplots(figsize=(8.2, 3.05))
+    y = 0.0
+    ticks, labels, headers = [], [], []
+    for gname, items in groups:
+        y -= 1.05
+        headers.append((y, gname))
+        for r in items:
+            y -= 1.0
+            a = float(r["ppv_coded_only"])
+            b = float(r["ppv_codes_plus_text"])
+            lo = min(float(r["ci_low_coded"]), float(r["ci_low_both"]))
+            hi = max(float(r["ci_high_coded"]), float(r["ci_high_both"]))
+            colour = NAVY if r["crosses_3pc"] == "yes" else GREY
+            # pale band spans both intervals, so the reader sees that the
+            # corrected haematuria CI (2.6-3.2) still includes 3
+            ax.plot([lo, hi], [y, y], color=colour, lw=6.5, alpha=0.18,
+                    solid_capstyle="butt", zorder=1)
+            ax.annotate("", xy=(b, y), xytext=(a, y),
+                        arrowprops=dict(arrowstyle="-|>", color=colour, lw=2.4,
+                                        shrinkA=6, shrinkB=2, mutation_scale=15), zorder=2)
+            ax.plot([a], [y], "o", ms=9, color=colour, mfc="white", mew=2.2, zorder=3)
+            ax.plot([b], [y], "o", ms=9, color=colour, zorder=3)
+            if abs(a - b) < 1e-9:
+                ax.text(hi * 1.16, y, f"{a}%, unchanged", color=colour,
+                        ha="left", va="center", fontsize=11.5)
+            else:
+                ax.text(lo * 0.84, y, f"{b}%", color=colour, ha="right", va="center",
+                        fontsize=11.5, fontweight="bold")
+                ax.text(hi * 1.16, y, f"{a}%", color=colour, ha="left", va="center", fontsize=11.5)
+            ticks.append(y)
+            labels.append(f"{r['symptom']}, {r['cancer']}")
+    ybot = y - 0.72
 
-    fig.text(0.5, 0.075, "Positive predictive value for cancer (%) \u2014 each panel on its own scale",
-             ha="center", fontsize=11.5, color="#4A4A4A")
-    fig.text(0.5, 0.012,
-             "open circle: coded records only          filled circle: codes plus recovered free text",
-             ha="center", fontsize=10.5, color="#6A6A6A")
-    fig.subplots_adjust(left=0.055, right=0.978, top=0.775, bottom=0.235, wspace=0.20)
-    check_panels_clean(fig, axes, dashed_at=(axes[0], 3.0, L0, L1))
+    for yy, gname in headers:
+        ax.text(-0.475, yy, gname, transform=ax.get_yaxis_transform(), ha="left",
+                va="center", fontsize=11.5, fontweight="bold", color="#2D2D2D", clip_on=False)
+    ax.axvline(3.0, color=NAVY, ls=(0, (4, 3)), lw=1.7, zorder=1)
+    ax.text(3.0, 0.34, "3% referral threshold", color=NAVY, fontsize=11.5,
+            fontweight="bold", ha="center", va="bottom")
+    ax.set_xscale("log")
+    ax.set_xlim(0.085, 34)
+    ax.set_ylim(ybot, 1.18)
+    ax.set_xticks([0.1, 0.3, 1, 3, 10, 30])
+    ax.set_xticklabels(["0.1", "0.3", "1", "3", "10", "30"], fontsize=11)
+    ax.set_yticks(ticks)
+    ax.set_yticklabels(labels, fontsize=11.5)
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.set_xlabel("Positive predictive value for cancer (%), log scale", fontsize=11.5, labelpad=3)
+    fig.text(0.5, 0.032,
+             "open circle: coded records only          filled circle: codes plus recovered text"
+             "          pale band: span of both 95% CIs",
+             ha="center", fontsize=10, color="#6A6A6A")
+    fig.subplots_adjust(left=0.325, right=0.885, top=0.975, bottom=0.255)
+    check_no_overlap(fig, ax)
     fig.savefig(OUT / "fig_threshold.png", facecolor="white")
     plt.close(fig)
+    return len(raw)
 
 
 def pooling():
@@ -235,48 +249,12 @@ def pooling():
     return [float(r["calibration_slope"]) for r in subs], float(pooled["calibration_slope"])
 
 
-def check_panels_clean(fig, axes, dashed_at=None):
-    """Multi-panel version of check_no_overlap, plus a dashed-line check.
-
-    dashed_at=(ax, x, y0, y1) asserts that the short dashed segment drawn at
-    data-x on that axis does not pass through any text. The plain text-vs-text
-    check cannot catch this: a Line2D is not a Text, so a line running straight
-    through four labels passes silently.
-    """
-    fig.canvas.draw()
-    r = fig.canvas.get_renderer()
-    items = []
-    for ax in axes:
-        for t in list(ax.texts) + [ax.title] + ax.get_xticklabels():
-            if t.get_text().strip():
-                items.append((ax, t, t.get_window_extent(r)))
-    problems = []
-    for i, (_, a, ba) in enumerate(items):
-        for _, b, bb in items[i + 1:]:
-            if ba.overlaps(bb):
-                problems.append(f"{a.get_text()[:22]!r} overlaps {b.get_text()[:22]!r}")
-    fb = fig.bbox
-    for _, t, bb in items:
-        if bb.x0 < fb.x0 or bb.x1 > fb.x1 or bb.y0 < fb.y0 or bb.y1 > fb.y1:
-            problems.append(f"{t.get_text()[:22]!r} runs outside the canvas")
-    if dashed_at:
-        ax, xdata, y0, y1 = dashed_at
-        xpix = ax.transData.transform((xdata, 0))[0]
-        ylo = ax.transAxes.transform((0, y0))[1]
-        yhi = ax.transAxes.transform((0, y1))[1]
-        for a_, t, bb in items:
-            if a_ is ax and bb.x0 <= xpix <= bb.x1 and bb.y1 >= ylo and bb.y0 <= yhi:
-                problems.append(f"dashed line crosses {t.get_text()[:22]!r}")
-    if problems:
-        raise AssertionError("figure has layout faults:\n  " + "\n  ".join(problems))
-
-
 def check_no_overlap(fig, ax):
     """Fail loudly if any two visible text boxes collide, or text sits on a spine.
 
     A figure that silently overlaps its own labels is a wrong figure. This is a
-    geometric check only — it cannot see a leader line pointing at the wrong
-    row, so anchor annotations to looked-up coordinates rather than eyeballed
+    geometric check only: it cannot see a leader line pointing at the wrong
+    row, so anchor annotations to looked-up coordinates instead of eyeballed
     ones (see forest(), which looks up the 'Hip pain' row).
     """
     import matplotlib as mpl
@@ -284,6 +262,11 @@ def check_no_overlap(fig, ax):
     renderer = fig.canvas.get_renderer()
     texts = [(t, t.get_window_extent(renderer)) for t in fig.findobj(mpl.text.Text)
              if t.get_text().strip() and t.get_visible()]
+    canvas = fig.bbox
+    for t, box in texts:
+        if box.x0 < canvas.x0 - 1 or box.x1 > canvas.x1 + 1:
+            problems_outside = f"{t.get_text()[:24]!r} runs outside the canvas"
+            raise AssertionError(problems_outside)
     ticklabels = set(ax.get_xticklabels() + ax.get_yticklabels())
     problems = []
     for i, (a, box_a) in enumerate(texts):
@@ -303,9 +286,9 @@ def check_no_overlap(fig, ax):
 if __name__ == "__main__":
     house_style()
     n_above, n_total = forest()
-    threshold()
+    n_pairs = threshold()
     slopes, pooled = pooling()
     print(f"fig_forest.png      {n_above} of {n_total} associations above 1")
-    print("fig_threshold.png   3 panels, each on its own scale")
+    print(f"fig_threshold.png   {n_pairs} symptom/cancer pairs, log scale")
     print(f"fig_pooling.png     subgroups {slopes} pool to {pooled}")
     print(f"all figures in {OUT}")
