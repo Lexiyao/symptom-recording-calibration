@@ -128,6 +128,30 @@ particular point estimate is definitively below it.
 
 ---
 
+## What the simulation establishes, and what it does not
+
+`figures/attenuation.png` in the companion repository
+[symptom-recording-simulation](https://github.com/Lexiyao/symptom-recording-simulation)
+uses **synthetic data with every parameter declared**: symptom prevalence 0.08,
+log odds ratio 2.34, coding rates 0.85 and 0.45. Nothing is estimated from real
+records, so no effect size in it transfers to the NHS.
+
+`verification/check_simulation.py` separates three claims that are easy to
+conflate:
+
+| | Status |
+|---|---|
+| 29% attenuation at random coding | **Not a result.** The closed form for imperfect sensitivity with perfect specificity gives 29.1% (vague) and 10.4% (alarm); the simulation returns 28.8% and 10.3%. The agreement is a unit test. |
+| Attenuation falls to 7% as coding becomes informative, while observed/predicted risk only falls from 1.91 to 1.61 | **The content.** No closed form covers the sweep. The bias measure improves by 22 percentage points; calibration improves by 0.30 and never reaches 1. |
+| Informative recording is the main mechanism | **Falsified.** Most attenuation is present at random coding, so the proposal's target moved from the odds ratio to subgroup calibration. |
+
+The reason this matters for the project: a study that reported only bias in the
+odds ratio would conclude the problem was shrinking, while the quantity a 3%
+referral threshold actually depends on stayed broken. Whether that divergence
+occurs in CPRD Aurum is an empirical question, and it is Aim 2.
+
+---
+
 ## How this sits against existing work in the department
 
 The Nuffield Department of Primary Care Health Sciences has already asked a
@@ -152,7 +176,9 @@ data/delia2025_table3.csv             15 associations, transcribed from Table 3
 data/price2016_ppv.csv                predictive values before/after text recovery
 data/calibration_slopes.csv           subgroup and pooled calibration slopes
 data/barclay2024_measured_bands.csv   per-site bands, written by barclay_panels.py
+data/sweep_results.csv                simulation sweep output, 200 replicates per point
 verification/check_sources.py         consistency, threshold, bridge and power checks
+verification/check_simulation.py      simulation against closed-form theory
 figures/                              generated output
 ```
 
