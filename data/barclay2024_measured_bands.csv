@@ -1,0 +1,15 @@
+panel,cancer_site,band_thickness_pc_at_oldest_age,exceeds_3pc
+Haematuria,Urological,11.62,yes
+Haematuria,Prostate,5.58,yes
+Haematuria,Other cancer,0.75,no
+Haematuria,Lower GI,0.38,no
+Haematuria,Haematological,0.37,no
+Haematuria,Lung,0.22,no
+Haematuria,Upper GI,0.15,no
+Fatigue,Prostate,1.83,no
+Fatigue,Other cancer,1.32,no
+Fatigue,Haematological,0.84,no
+Fatigue,Lower GI,0.8,no
+Fatigue,Lung,0.47,no
+Fatigue,Upper GI,0.47,no
+Fatigue,Urological,0.33,no

@@ -1,0 +1,16 @@
+group,symptom,odds_ratio,ci_low_99_76,ci_high_99_76
+Black,Unintended weight loss,2.02,1.25,3.28
+Black,Ankle pain,1.51,1.02,2.23
+Black,Shoulder pain,1.44,1.25,1.66
+Black,Knee pain,1.37,1.2,1.57
+South Asian,Muscle cramps,1.71,1.14,2.57
+South Asian,Shoulder pain,1.33,1.07,1.65
+South Asian,Knee pain,1.29,1.06,1.58
+South Asian,Neck pain,1.28,1.04,1.57
+South Asian,Fatigue,1.28,1.06,1.55
+South Asian,Hand and finger pain,1.16,1.0,1.35
+South Asian,Hip pain,0.66,0.5,0.89
+Other ethnicity,Jaw pain,3.3,1.02,10.73
+Other ethnicity,Falls,2.14,1.02,4.5
+Most deprived (IMD 1),Morning stiffness,1.74,1.08,2.8
+Most deprived (IMD 1),Falls,1.37,1.03,1.82
