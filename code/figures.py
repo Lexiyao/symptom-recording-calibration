@@ -129,6 +129,30 @@ def forest():
     return n_above, n_total
 
 
+
+def check_line_clear_of_text(fig, ax, text_artist, x_data):
+    """Assert no drawn line passes through a text label's box.
+
+    check_no_overlap compares text against text. A dashed reference line is a
+    Line2D, not a Text, so it passes that check while striking through the
+    label. This closes that gap for one label and one vertical line.
+    """
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    box = text_artist.get_window_extent(renderer)
+    x_px = ax.transData.transform((x_data, 0))[0]
+    if not (box.x0 <= x_px <= box.x1):
+        return
+    for line in ax.lines:
+        xs, ys = line.get_xdata(), line.get_ydata()
+        if len(xs) < 2 or not all(abs(v - x_data) < 1e-9 for v in xs):
+            continue
+        y_top_px = ax.transData.transform((x_data, max(ys)))[1]
+        assert y_top_px <= box.y0 + 1, (
+            f"the vertical line at x={x_data} reaches y={max(ys)}, which is "
+            f"inside the label {text_artist.get_text()!r}"
+        )
+
 def threshold():
     """Price 2016: PPV with coded records only, then with recovered free text.
 
@@ -184,9 +208,13 @@ def threshold():
     for yy, gname in headers:
         ax.text(-0.475, yy, gname, transform=ax.get_yaxis_transform(), ha="left",
                 va="center", fontsize=11.5, fontweight="bold", color="#2D2D2D", clip_on=False)
-    ax.axvline(3.0, color=NAVY, ls=(0, (4, 3)), lw=1.7, zorder=1)
-    ax.text(3.0, 0.34, "3% referral threshold", color=NAVY, fontsize=11.5,
-            fontweight="bold", ha="center", va="bottom")
+    # the dashed line must stop below the label, or it strikes through the text
+    label_y = 0.34
+    ax.plot([3.0, 3.0], [ybot, label_y - 0.06], color=NAVY, ls=(0, (4, 3)),
+            lw=1.7, zorder=1)
+    thresh_label = ax.text(3.0, label_y, "3% referral threshold", color=NAVY,
+                           fontsize=11.5, fontweight="bold", ha="center",
+                           va="bottom")
     ax.set_xscale("log")
     ax.set_xlim(0.085, 34)
     ax.set_ylim(ybot, 1.18)
@@ -203,6 +231,7 @@ def threshold():
              ha="center", fontsize=10, color="#6A6A6A")
     fig.subplots_adjust(left=0.325, right=0.885, top=0.975, bottom=0.255)
     check_no_overlap(fig, ax)
+    check_line_clear_of_text(fig, ax, thresh_label, x_data=3.0)
     fig.savefig(OUT / "fig_threshold.png", facecolor="white")
     plt.close(fig)
     return len(raw)
