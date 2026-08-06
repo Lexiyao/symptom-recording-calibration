@@ -40,6 +40,9 @@ python code/figures.py
 # consistency and threshold checks on every published value used
 python verification/check_sources.py
 
+# what a null result in Aim 3 would bound, and the power behind it
+python verification/check_null_power.py
+
 # panels extracted from Barclay Fig 2 (download the open-access PDF first)
 python code/barclay_panels.py /path/to/bmjonc-2024-000500.pdf
 ```
@@ -265,6 +268,50 @@ presence in electronic health records.
 
 ---
 
+## What a null result would establish
+
+A null comparison of calibration slopes is only interpretable if the design could
+have detected a difference worth detecting. `verification/check_null_power.py`
+computes what it could have detected, so that a null is reported as a bound and
+never as an absence.
+
+The calibration-slope standard error is obtained by simulating logistic
+recalibration and cross-checked against the Fisher information for the slope with
+the intercept profiled out. If the two disagreed, the simulation would be wrong.
+
+| n per group | events | SE of slope | smallest detectable between-group difference |
+|---|---|---|---|
+| 5,000 | 75 | 0.101 | 0.40 |
+| 20,000 | 300 | 0.050 | 0.20 |
+| 100,000 | 1,500 | 0.022 | 0.09 |
+
+At 80% power and a two-sided 5% level, with two independent groups.
+
+**Why 0.20 is the yardstick.** For a patient the model places at exactly 3%, a
+slope of 1.00 means a true risk of 3.00% and a slope of 0.80 means 2.61%. That is
+the difference between referring and not referring.
+
+Two things are stated rather than buried, because both change the answer:
+
+- **The parameterisation matters.** The 2.61% figure is from the recalibration
+  model as fitted, which regresses the outcome on the model's own linear predictor
+  and therefore rotates predictions about the cohort average. Applying the same
+  slope with the intercept pinned at zero is a different model and gives 5.84%.
+  The script prints both and labels which one is the estimand.
+- **The linear predictor SD is a declared assumption, not an estimate.** At SD
+  1.25 a 0.20 slope gap needs about 20,000 per group; at SD 1.00 the same gap
+  needs about 29,000, because a flatter risk distribution carries less information
+  about the slope. Aim 3 reports the observed SD alongside the power calculation
+  for this reason.
+
+**What follows for reporting.** Below 20,000 per group a null bounds nothing worth
+reporting, so subgroup sizes are prespecified and reported before any comparison,
+and an underpowered null is never written up as a null. Finding no difference at
+20,000 per group is itself the contribution: no one has measured that gap for
+symptom codes.
+
+---
+
 ## How this sits against existing work in the department
 
 The Nuffield Department of Primary Care Health Sciences has already asked a
@@ -290,9 +337,10 @@ data/price2016_ppv.csv                predictive values before/after text recove
 data/calibration_slopes.csv           subgroup and pooled calibration slopes
 data/barclay2024_measured_bands.csv   per-site bands, written by barclay_panels.py
 data/sweep_results.csv                simulation sweep output, 200 replicates per point
-verification/check_sources.py         consistency, threshold, bridge and power checks
+verification/check_sources.py         consistency and threshold checks on published values
 verification/check_simulation.py      simulation against closed-form theory
 verification/check_identification.py  Aim 2 identification and confounding bound
+verification/check_null_power.py       what a null result bounds: slope SE, MDE, power
 figures/                              generated output
 ```
 
